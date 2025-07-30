@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pyTelegramBotAPI
+requests
+beautifulsoup4
+pillow
