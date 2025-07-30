@@ -1,3 +1,1 @@
-# Bot Oferta Certa
-
-Este bot automatiza a publicação de ofertas da Amazon no Telegram...
+# Bot Oferta Certa com Agendamento Automático
