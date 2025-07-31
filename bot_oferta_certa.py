@@ -62,7 +62,7 @@ def publicar_automatico():
         link = f"https://www.amazon.com.br/dp/{asin}?tag=davidribeiro8-20"
         rotulo = random.choice(rotulos)
         imagem = gerar_imagem(titulo, preco, link, rotulo)
-    legenda = f"{rotulo}\n\n📦 {titulo}\n💰 {preco}\n👉 {link}"
+    legenda = f"[OFERTA CERTA]\n\nProduto: {titulo}\nPreço: {preco}\nLink: {link}"
 
 📦 {titulo}
 💰 {preco}
