@@ -1,13 +1,12 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
-import telebot
-import requests
-from bs4 import BeautifulSoup
+import telebot, requests, random, logging
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 
 BOT_TOKEN = "8356193016:AAGVhVRMA5TSLu1HuHRaPfWLSJ6Z3yTFFcQ"
 CHAT_ID = "@ofertacerta"
+ADMIN_ID = 6863480446
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = FastAPI()
@@ -15,34 +14,42 @@ app = FastAPI()
 LOGO_URL = "https://i.imgur.com/gDp5tqb.png"
 FONTE = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
-def buscar_produto_amazon():
-    url = "https://www.amazon.com.br/dp/B09X2W4JXN"
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    res = requests.get(url, headers=headers)
-    soup = BeautifulSoup(res.content, 'html.parser')
-    titulo = soup.select_one("#productTitle")
-    preco = soup.select_one(".a-price .a-offscreen")
-    titulo = titulo.get_text(strip=True) if titulo else "Produto"
-    preco = preco.get_text(strip=True) if preco else "Preço indisponível"
-    code = url.split("/dp/")[1].split("/")[0]
-    link = f"https://www.amazon.com.br/dp/{code}?tag=davidribeiro8-20"
-    return titulo, preco, link
+produtos = [
+    ("B0CW1FVDP7", "Air Fryer 4L Mondial"),
+    ("B09X2W4JXN", "Fone de Ouvido Sem Fio Bluetooth"),
+    ("B07Z8RWMFJ", "Smart TV 50'' Samsung"),
+    ("B0CW1CSN3S", "Notebook Lenovo IdeaPad"),
+    ("B08ZL41ZK3", "Kit Organizadores de Gaveta"),
+    ("B089M4ZTBZ", "Suporte Articulado para TV"),
+    ("B0BS8MJXLN", "Echo Dot 5ª Geração"),
+    ("B09F5Y2ZWX", "Cafeteira Elétrica Nespresso"),
+    ("B0BTT6FT3G", "Hub USB-C HDMI"),
+    ("B07X2Q44H8", "Aspirador Vertical Electrolux")
+]
 
-def gerar_imagem(titulo, preco, link):
+rotulos = [
+    "🔥 Desconto Relâmpago",
+    "🎯 Oferta Certa do Dia",
+    "🏆 Top Achado",
+    "🎟️ Cupom Exclusivo",
+    "🛒 Achado Útil",
+    "🚀 Oferta Quente"
+]
+
+def gerar_imagem(titulo, preco, link, rotulo):
     base = Image.new("RGB", (1080, 1080), (255, 255, 255))
     draw = ImageDraw.Draw(base)
-    fonte_titulo = ImageFont.truetype(FONTE, 44)
-    fonte_preco = ImageFont.truetype(FONTE, 40)
-    fonte_link = ImageFont.truetype(FONTE, 30)
-    fonte_marca = ImageFont.truetype(FONTE, 20)
-    response = requests.get(LOGO_URL)
-    logo = Image.open(BytesIO(response.content)).convert("RGBA").resize((250, 80))
+    f1 = ImageFont.truetype(FONTE, 44)
+    f2 = ImageFont.truetype(FONTE, 40)
+    f3 = ImageFont.truetype(FONTE, 30)
+    f4 = ImageFont.truetype(FONTE, 20)
+    logo = Image.open(BytesIO(requests.get(LOGO_URL).content)).convert("RGBA").resize((250, 80))
     base.paste(logo, (50, 40), logo)
-    draw.text((50, 160), "🔥 Desconto Relâmpago", fill=(255, 102, 0), font=fonte_titulo)
-    draw.text((50, 250), titulo[:70], fill=(0, 0, 0), font=fonte_titulo)
-    draw.text((50, 350), preco, fill=(0, 128, 0), font=fonte_preco)
-    draw.text((50, 450), "Compre agora 👉 " + link, fill=(60, 60, 60), font=fonte_link)
-    draw.text((800, 1020), "Oferta Certa", fill=(180, 180, 180), font=fonte_marca)
+    draw.text((50, 160), rotulo, fill=(255, 102, 0), font=f1)
+    draw.text((50, 250), titulo[:70], fill=(0, 0, 0), font=f1)
+    draw.text((50, 350), preco, fill=(0, 128, 0), font=f2)
+    draw.text((50, 450), "Compre agora 👉 " + link, fill=(60, 60, 60), font=f3)
+    draw.text((800, 1020), "Oferta Certa", fill=(180, 180, 180), font=f4)
     buffer = BytesIO()
     base.save(buffer, format="PNG")
     buffer.seek(0)
@@ -50,16 +57,21 @@ def gerar_imagem(titulo, preco, link):
 
 def publicar_automatico():
     try:
-        titulo, preco, link = buscar_produto_amazon()
-        imagem = gerar_imagem(titulo, preco, link)
-        legenda = f"{titulo}
+        asin, titulo = random.choice(produtos)
+        preco = "Oferta imperdível"
+        link = f"https://www.amazon.com.br/dp/{asin}?tag=davidribeiro8-20"
+        rotulo = random.choice(rotulos)
+        imagem = gerar_imagem(titulo, preco, link, rotulo)
+        legenda = f"{rotulo}
 
+📦 {titulo}
 💰 {preco}
 👉 {link}"
         bot.send_photo(CHAT_ID, imagem, caption=legenda)
-        print("✔️ Oferta postada com sucesso!")
     except Exception as e:
-        print("Erro ao publicar:", e)
+        logging.error(f"Erro ao postar: {e}")
+        bot.send_message(ADMIN_ID, f"❌ Erro no bot Oferta Certa:
+{e}")
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(publicar_automatico, "interval", minutes=30)

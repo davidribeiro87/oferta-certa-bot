@@ -1,1 +1,1 @@
-# Bot Oferta Certa com Agendamento Automático
+# Bot Oferta Certa v2 - 100% automático com curadoria real
