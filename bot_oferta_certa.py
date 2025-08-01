@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-BOT_TOKEN = ""8356193016:AAHExuwPl5veXBoqazsgXvu7Bbqn9aKACcI"
+BOT_TOKEN = "8356193016:AAHExuwPl5veXBoqazsgXvu7Bbqn9aKACcI"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 @app.get("/")
