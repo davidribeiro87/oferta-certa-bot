@@ -31,7 +31,11 @@ def gerar_imagem(titulo, preco, imagem_url):
 
 def enviar_para_telegram(bot, chat_id, oferta):
     imagem = gerar_imagem(oferta["titulo"], oferta["preco"], oferta["imagem"])
-    legenda = f"📦 {oferta['titulo']}
-💰 {oferta['preco']}
-🔗 {oferta['link']}"
+    legenda = (
+        f"📦 {oferta['titulo']}
+"
+        f"💰 {oferta['preco']}
+"
+        f"🔗 {oferta['link']}"
+    )
     bot.send_photo(chat_id, imagem, caption=legenda)
