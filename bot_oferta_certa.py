@@ -1,33 +1,24 @@
-
-import os
-import time
-import asyncio
+import telebot
 from fastapi import FastAPI
-from apscheduler.schedulers.background import BackgroundScheduler
 from oferta_utils import buscar_ofertas, enviar_para_telegram
+from apscheduler.schedulers.background import BackgroundScheduler
 
+API_TOKEN = '8356193016:AAHExuwPl5veXBoqazsgXvu7Bbqn9aKACcI'
+CHAT_ID = '-1002808972406'
+
+bot = telebot.TeleBot(API_TOKEN)
 app = FastAPI()
 
-# Função principal de publicação automática
-def publicar_ofertas():
-    try:
-        ofertas = buscar_ofertas()
-        for oferta in ofertas:
-            enviar_para_telegram(oferta)
-            time.sleep(2)
-    except Exception as e:
-        print(f"Erro ao publicar ofertas: {e}")
+def publicar_oferta():
+    ofertas = buscar_ofertas()
+    for oferta in ofertas:
+        enviar_para_telegram(bot, CHAT_ID, oferta)
 
-# Agendador
 scheduler = BackgroundScheduler()
-scheduler.add_job(publicar_ofertas, "interval", minutes=30)
+scheduler.add_job(publicar_oferta, 'interval', minutes=30)
 scheduler.start()
 
-@app.get("/")
-def home():
-    return {"status": "Bot de ofertas está ativo."}
-
-@app.get("/forcar-publicacao")
+@app.get('/forcar-publicacao')
 def forcar_publicacao():
-    publicar_ofertas()
-    return {"status": "Publicação forçada executada com sucesso"}
+    publicar_oferta()
+    return {"status": "publicacao enviada"}
