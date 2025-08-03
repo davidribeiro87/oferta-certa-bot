@@ -1,24 +1,14 @@
-import telebot
 from fastapi import FastAPI
 from oferta_utils import buscar_ofertas, enviar_para_telegram
 from apscheduler.schedulers.background import BackgroundScheduler
 
-API_TOKEN = '8356193016:AAHExuwPl5veXBoqazsgXvu7Bbqn9aKACcI'
-CHAT_ID = '-1002808972406'
-
-bot = telebot.TeleBot(API_TOKEN)
 app = FastAPI()
 
-def publicar_oferta():
-    ofertas = buscar_ofertas()
-    for oferta in ofertas:
-        enviar_para_telegram(bot, CHAT_ID, oferta)
-
 scheduler = BackgroundScheduler()
-scheduler.add_job(publicar_oferta, 'interval', minutes=30)
+scheduler.add_job(func=enviar_para_telegram, trigger="interval", minutes=30)
 scheduler.start()
 
-@app.get('/forcar-publicacao')
-def forcar_publicacao():
-    publicar_oferta()
-    return {"status": "publicacao enviada"}
+@app.get("/forcar-publicacao")
+async def forcar_publicacao():
+    enviar_para_telegram()
+    return {"status": "ok"}
