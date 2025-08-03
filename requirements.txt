@@ -1,5 +1,5 @@
 fastapi
-pyTelegramBotAPI
-apscheduler
 uvicorn
+telebot
+apscheduler
 requests
