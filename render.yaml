@@ -1,0 +1,29 @@
+services:
+  - type: worker
+    name: oferta-certa-bot
+    env: docker
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: AMAZON_ACCESS_KEY
+        sync: false
+      - key: AMAZON_SECRET_KEY
+        sync: false
+      - key: AMAZON_PARTNER_TAG
+        sync: false
+      - key: AMAZON_REGION
+        value: BR
+      - key: AMAZON_HOST
+        value: webservices.amazon.com.br
+      - key: POST_INTERVAL_MINUTES
+        value: "30"
+      - key: MAX_PRODUCTS_PER_CYCLE
+        value: "3"
+      - key: LANG
+        value: pt_BR
+      - key: CURRENCY
+        value: BRL
